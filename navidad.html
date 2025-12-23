@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feliz Navidad</title>
+  <style>
+    html, body {
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      text-align: center;
+      overflow: hidden; /* evita duplicados por scroll */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .video-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+    main {
+      width: 100%;
+      max-width: 500px;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 1.4rem;
+      font-weight: normal;
+      margin-bottom: 25px;
+    }
+    .control {
+      margin-top: 20px;
+    }
+    input {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      text-align: center;
+      width: 100%;
+      max-width: 280px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    footer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      opacity: 0.85;
+    }
+    #contador {
+      margin-top: 18px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <video class="video-bg" autoplay muted loop>
+    <source src="https://cdn.pixabay.com/video/2020/11/25/57571-484902410_large.mp4" type="video/mp4">
+  </video>
+  <div class="overlay"></div>
+
+  <main>
+    <h1>🎄 Feliz Navidad 🎄</h1>
+    <h2>Te desea <span id="nombre">Ivan</span> ❤️</h2>
+
+    <div id="contador">🎁 Faltan: <span id="tiempo"></span></div>
+
+    <div class="control">
+      <input type="text" placeholder="COLOCA TU NOMBRE" oninput="cambiarNombre(this.value)" />
+      <br />
+      <button onclick="compartir()">📤 Compartir con amigos</button>
+    </div>
+
+    <footer>
+      ✨ Que la paz y el amor llenen tu hogar ✨
+    </footer>
+  </main>
+
+  <script>
+    function cambiarNombre(valor) {
+      const nombre = valor || 'Ivan';
+      document.getElementById('nombre').textContent = nombre;
+      const url = new URL(window.location);
+      url.searchParams.set('nombre', nombre);
+      window.history.replaceState({}, '', url);
+    }
+
+    function cargarDesdeURL() {
+      const params = new URLSearchParams(window.location.search);
+      const nombre = params.get('nombre');
+      if (nombre) {
+        document.getElementById('nombre').textContent = nombre;
+      }
+    }
+
+    function compartir() {
+      const nombre = document.getElementById('nombre').textContent || 'Ivan';
+      const url = new URL(window.location);
+      url.searchParams.set('nombre', nombre);
+
+      navigator.clipboard.writeText(url.toString())
+        .then(() => alert('✅ Enlace copiado. Compártelo con tus amigos 😊'))
+        .catch(() => alert('❌ No se pudo copiar el enlace'));
+    }
+
+    cargarDesdeURL();
+
+    // Cuenta regresiva al 25 de diciembre a las 12:00 AM (00:00)
+    const fechaObjetivo = new Date(
+      new Date().getFullYear(),
+      11, // diciembre (0 = enero)
+      25,
+      0,  // 12:00 AM
+      0,
+      0
+    ).getTime();
+
+    const contadorIntervalo = setInterval(() => {
+      const ahora = new Date().getTime();
+      const diferencia = fechaObjetivo - ahora;
+
+      if (diferencia <= 0) {
+        clearInterval(contadorIntervalo);
+        document.getElementById('contador').innerHTML = '🎄 ¡Feliz Navidad! 🎄';
+        return;
+      }
+
+      const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+      const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+      const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+
+      document.getElementById('tiempo').textContent = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+    }, 1000);
+  </script>
+
+</body>
+</html>
